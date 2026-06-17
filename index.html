@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NickDz Bot Shop - Hệ Thống Thuê Bot & Host Bot Chuyên Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ----- Các animation ----- */
+        @keyframes orbit-1 {
+            0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+        }
+        @keyframes orbit-2 {
+            0% { transform: rotate(120deg) translateX(40px) rotate(-120deg); }
+            100% { transform: rotate(480deg) translateX(40px) rotate(-480deg); }
+        }
+        @keyframes orbit-3 {
+            0% { transform: rotate(240deg) translateX(40px) rotate(-240deg); }
+            100% { transform: rotate(600deg) translateX(40px) rotate(-600deg); }
+        }
+        @keyframes pulse-core {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; filter: drop-shadow(0 0 15px #0ea5e9); }
+        }
+        .orbit-dot-1 { animation: orbit-1 1.8s infinite linear; }
+        .orbit-dot-2 { animation: orbit-2 1.8s infinite linear; }
+        .orbit-dot-3 { animation: orbit-3 1.8s infinite linear; }
+        .core-dot { animation: pulse-core 1.2s infinite ease-in-out; }
+
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        .scanner-line { animation: scan 3s infinite linear; }
+
+        /* ----- Snowfall ----- */
+        @keyframes snow {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0.7; }
+            100% { transform: translateY(110vh) rotate(720deg) translateX(20px); opacity: 0.1; }
+        }
+        .snowflake {
+            position: fixed;
+            top: -10vh;
+            color: #ffffff;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 9999;
+            animation: snow linear infinite;
+            text-shadow: 0 0 6px rgba(255,255,255,0.2);
+        }
+        .snowflake:nth-child(1) { left: 5%; font-size: 1.0rem; animation-duration: 10s; animation-delay: 0s; }
+        .snowflake:nth-child(2) { left: 15%; font-size: 0.8rem; animation-duration: 12s; animation-delay: 2s; }
+        .snowflake:nth-child(3) { left: 25%; font-size: 1.4rem; animation-duration: 9s; animation-delay: 4s; }
+        .snowflake:nth-child(4) { left: 35%; font-size: 0.9rem; animation-duration: 11s; animation-delay: 1s; }
+        .snowflake:nth-child(5) { left: 45%; font-size: 1.1rem; animation-duration: 13s; animation-delay: 3s; }
+        .snowflake:nth-child(6) { left: 55%; font-size: 0.7rem; animation-duration: 10s; animation-delay: 5s; }
+        .snowflake:nth-child(7) { left: 65%; font-size: 1.3rem; animation-duration: 12s; animation-delay: 0s; }
+        .snowflake:nth-child(8) { left: 75%; font-size: 0.9rem; animation-duration: 9s; animation-delay: 2s; }
+        .snowflake:nth-child(9) { left: 85%; font-size: 1.2rem; animation-duration: 11s; animation-delay: 4s; }
+        .snowflake:nth-child(10) { left: 95%; font-size: 0.8rem; animation-duration: 10s; animation-delay: 1s; }
+        .snowflake:nth-child(11) { left: 10%; font-size: 1.0rem; animation-duration: 14s; animation-delay: 3s; }
+        .snowflake:nth-child(12) { left: 50%; font-size: 1.5rem; animation-duration: 8s; animation-delay: 2s; }
+        .snowflake:nth-child(13) { left: 70%; font-size: 0.6rem; animation-duration: 12s; animation-delay: 0s; }
+        .snowflake:nth-child(14) { left: 30%; font-size: 1.2rem; animation-duration: 10s; animation-delay: 5s; }
+        .snowflake:nth-child(15) { left: 80%; font-size: 1.0rem; animation-duration: 11s; animation-delay: 3s; }
+
+        /* ----- Scrollbar tối ----- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #3b3b5c; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a5a8a; }
+
+        [v-cloak] { display: none !important; }
+
+        /* ----- Micro‑interactions ----- */
+        .btn-glow {
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .btn-glow:hover::after {
+            opacity: 1;
+        }
+        .btn-glow:active {
+            transform: scale(0.96);
+        }
+
+        .card-hover-glow {
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .card-hover-glow:hover {
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.08), 0 0 60px rgba(14, 165, 233, 0.04);
+            transform: translateY(-2px);
+        }
+
+        /* Fade & List transitions */
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.4s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .list-enter-active, .list-leave-active { transition: all 0.5s ease; }
+        .list-enter-from, .list-leave-to { opacity: 0; transform: translateX(30px); }
+
+        .drawer-scroll { overflow-y: auto; max-height: 100vh; }
+
+        /* Sidebar scroll */
+        .sidebar-scroll {
+            overflow-y: auto;
+            max-height: calc(100vh - 180px);
+        }
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #3b3b5c; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#0a0a12] text-gray-200 h-full font-sans antialiased selection:bg-brand-500/30 selection:text-white">
+    <!-- Snowfall -->
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❄</div>
+
+    <div id="app" class="min-h-full flex flex-col" v-cloak>
+        <!-- Loading -->
+        <transition name="fade">
+            <div v-if="globalLoading" class="fixed inset-0 z-50 bg-[#0a0a12]/95 flex flex-col items-center justify-center backdrop-blur-sm">
+                <div class="relative w-32 h-32 flex items-center justify-center">
+                    <div class="w-6 h-6 bg-brand-500 rounded-full core-dot"></div>
+                    <div class="absolute w-3 h-3 bg-cyan-400 rounded-full orbit-dot-1 shadow-[0_0_10px_#22d3ee]"></div>
+                    <div class="absolute w-3 h-3 bg-fuchsia-500 rounded-full orbit-dot-2 shadow-[0_0_10px_#d946ef]"></div>
+                    <div class="absolute w-3 h-3 bg-amber-400 rounded-full orbit-dot-3 shadow-[0_0_10px_#fbbf24]"></div>
+                    <svg class="absolute w-24 h-24 text-gray-700/40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 5" />
+                    </svg>
+                </div>
+                <h3 class="text-white font-extrabold tracking-widest text-sm mt-4 uppercase bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">Đang xử lý...</h3>
+                <p class="text-xs text-gray-500 mt-1">Vui lòng không spam thao tác</p>
+            </div>
+        </transition>
+
+        <!-- Toast -->
+        <div class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full">
+            <transition-group name="list">
+                <div v-for="toast in toasts" :key="toast.id" 
+                     :class="['p-4 rounded-xl border shadow-2xl flex items-start gap-3 pointer-events-auto transition-all duration-300', 
+                              toast.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200' : 
+                              toast.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-200' : 'bg-blue-950/80 border-blue-500/30 text-blue-200']">
+                    <span class="mt-0.5">
+                        <i v-if="toast.type === 'success'" class="fa-solid fa-circle-check text-emerald-400"></i>
+                        <i v-else-if="toast.type === 'error'" class="fa-solid fa-circle-exclamation text-rose-400"></i>
+                        <i v-else class="fa-solid fa-circle-info text-blue-400"></i>
+                    </span>
+                    <div class="flex-1 text-xs font-semibold">{{ toast.message }}</div>
+                    <button @click="removeToast(toast.id)" class="text-gray-400 hover:text-gray-200"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </transition-group>
+        </div>
+
+        <!-- Header -->
+        <header class="border-b border-gray-800 bg-[#0a0a12]/80 backdrop-blur-xl sticky top-0 z-40 shadow-lg shadow-black/30">
+            <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-robot text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg tracking-wider bg-gradient-to-r from-brand-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">NICKDZ PREMIUM</span>
+                        <span class="text-[10px] block text-gray-500 font-semibold uppercase tracking-widest">BOT & HOSTER</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6 text-xs text-gray-400">
+                    <a href="https://zalo.me/0363087817" target="_blank" class="hover:text-brand-400 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-phone text-emerald-400"></i> Zalo: <strong>0363087817</strong>
+                    </a>
+                    <div class="flex items-center gap-1.5 cursor-pointer" @click="copyText('nickdzvc')">
+                        <i class="fa-brands fa-discord text-indigo-400"></i> Discord: <strong>nickdzvc</strong>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <template v-if="currentUser">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <span class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                                <i v-if="isAdmin" class="fa-solid fa-shield-halved text-amber-400"></i>
+                                <i v-else class="fa-solid fa-circle-user text-brand-400"></i>
+                                {{ currentUser.username }}
+                            </span>
+                            <span v-if="!isAdmin" class="text-xs font-semibold text-emerald-400">Số dư: {{ formatMoney(currentUser.balance) }}</span>
+                            <span v-else class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">QUẢN TRỊ VIÊN</span>
+                        </div>
+                        <button @click="logout" class="bg-gray-800/50 hover:bg-rose-950/40 hover:text-rose-400 text-gray-400 hover:border-rose-500/30 border border-transparent px-3 py-1.5 rounded-lg text-xs font-semibold transition btn-glow">
+                            <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden md:inline">Đăng xuất</span>
+                        </button>
+                    </template>
+                    <template v-else>
+                        <button @click="switchTabWithLoading('store')" class="text-gray-400 hover:text-white text-xs font-semibold px-2 py-1 transition">Xem Shop</button>
+                        <button @click="authMode = 'login'" class="text-gray-200 hover:text-white text-xs font-semibold px-2 py-1 transition">Đăng nhập</button>
+                        <button @click="authMode = 'register'" class="bg-brand-600 hover:bg-brand-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition btn-glow">Đăng ký</button>
+                    </template>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+            <!-- Auth panels -->
+            <div v-if="!currentUser && authMode !== ''" class="flex-1 flex items-center justify-center py-12">
+                <div class="max-w-md w-full bg-[#12121f]/90 border border-gray-800/80 p-8 rounded-2xl shadow-2xl backdrop-blur-lg">
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-brand-600 rounded-xl flex items-center justify-center text-white mx-auto shadow-xl shadow-brand-500/20 mb-3">
+                            <i class="fa-solid fa-lock text-xl"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">{{ authMode === 'login' ? 'Đăng nhập hệ thống' : 'Đăng ký thành viên' }}</h2>
+                        <p class="text-xs text-gray-400 mt-1">{{ authMode === 'login' ? 'Nhập thông tin tài khoản' : 'Tạo tài khoản không giới hạn mật khẩu' }}</p>
+                    </div>
+                    <form @submit.prevent="handleAuth" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Tài khoản</label>
+                            <input type="text" v-model="authForm.username" required placeholder="Tên tài khoản..."
+                                   class="block w-full px-4 py-2.5 bg-[#1a1a2e] border border-gray-700 rounded-xl focus:ring-1 focus:ring-brand-500 focus:border-transparent text-xs text-gray-200 placeholder-gray-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Mật khẩu</label>
+                            <input type="password" v-model="authForm.password" required placeholder="Mật khẩu của bạn..."
+                                   class="block w-full px-4 py-2.5 bg-[#1a1a2e] border border-gray-700 rounded-xl focus:ring-1 focus:ring-brand-500 focus:border-transparent text-xs text-gray-200 placeholder-gray-500">
+                        </div>
+                        <div v-if="authMode === 'register'">
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Nhập lại mật khẩu</label>
+                            <input type="password" v-model="authForm.confirmPassword" required placeholder="Xác nhận mật khẩu..."
+                                   class="block w-full px-4 py-2.5 bg-[#1a1a2e] border border-gray-700 rounded-xl focus:ring-1 focus:ring-brand-500 focus:border-transparent text-xs text-gray-200 placeholder-gray-500">
+                        </div>
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl transition text-xs btn-glow">
+                            {{ authMode === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản' }}
+                        </button>
+                    </form>
+                    <div class="mt-6 text-center text-xs text-gray-400">
+                        <span>{{ authMode === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?' }}</span>
+                        <button @click="authMode = authMode === 'login' ? 'register' : 'login'" class="text-brand-400 hover:text-brand-300 font-bold ml-1 transition">
+                            {{ authMode === 'login' ? 'Đăng ký miễn phí' : 'Đăng nhập ngay' }}
+                        </button>
+                        <div class="mt-4 border-t border-gray-800 pt-3">
+                            <button @click="authMode = ''" class="text-gray-500 hover:text-gray-300 transition">← Quay lại Trang Chủ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Sidebar (có thể cuộn) -->
+                <aside class="lg:col-span-3 bg-[#12121f]/60 border border-gray-800 rounded-2xl p-4 space-y-1 shadow-lg shadow-black/20 sidebar-scroll">
+                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 px-3 mb-2">DANH MỤC DỊCH VỤ</p>
+                    <template v-if="!currentUser || !isAdmin">
+                        <button @click="switchTabWithLoading('store')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'store' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <i class="fa-solid fa-store w-4"></i> Thuê Hosting Bot
+                        </button>
+                        <button @click="switchTabWithLoading('custom-bot')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'custom-bot' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <i class="fa-solid fa-code w-4"></i> Đặt Code Bot (Yêu cầu)
+                        </button>
+                        <template v-if="currentUser">
+                            <button @click="switchTabWithLoading('my-bots')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all btn-glow', activeTab === 'my-bots' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                                <div class="flex items-center gap-3"><i class="fa-solid fa-server w-4"></i> Bot Đang Thuê</div>
+                                <span v-if="userBotsCount > 0" class="bg-brand-900/60 text-brand-300 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ userBotsCount }}</span>
+                            </button>
+                            <button @click="switchTabWithLoading('upload-config')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'upload-config' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                                <i class="fa-solid fa-cloud-arrow-up w-4 text-cyan-400"></i> Gửi File Code Bot
+                            </button>
+                            <button @click="switchTabWithLoading('deposit')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'deposit' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                                <i class="fa-solid fa-wallet w-4"></i> Nạp Tiền
+                            </button>
+                            <button @click="switchTabWithLoading('history')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'history' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                                <i class="fa-solid fa-clock-rotate-left w-4"></i> Lịch Sử Giao Dịch
+                            </button>
+                        </template>
+                    </template>
+                    <template v-else-if="currentUser && isAdmin">
+                        <button @click="switchTabWithLoading('admin-hosts')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'admin-hosts' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <i class="fa-solid fa-folder-plus w-4 text-indigo-400"></i> Cấu Hình Giá Host
+                        </button>
+                        <button @click="switchTabWithLoading('admin-bots')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all btn-glow', activeTab === 'admin-bots' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-terminal w-4 text-emerald-400"></i> Bật/Tắt & Quản Lý Bot</div>
+                            <span v-if="adminPendingFilesCount > 0" class="bg-cyan-900/40 text-cyan-300 text-[9px] px-1.5 py-0.5 rounded-full font-extrabold animate-bounce">{{ adminPendingFilesCount }} File</span>
+                        </button>
+                        <button @click="switchTabWithLoading('admin-cards')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all btn-glow', activeTab === 'admin-cards' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-ticket w-4 text-amber-400"></i> Duyệt Nạp Thẻ Cào</div>
+                            <span v-if="pendingCardsCount > 0" class="bg-rose-900/40 text-rose-300 text-[9px] px-1.5 py-0.5 rounded-full font-bold">{{ pendingCardsCount }}</span>
+                        </button>
+                        <button @click="switchTabWithLoading('admin-banks')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all btn-glow', activeTab === 'admin-banks' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-building-columns w-4 text-emerald-400"></i> Duyệt Nạp Ngân Hàng</div>
+                            <span v-if="pendingBanksCount > 0" class="bg-emerald-900/40 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded-full font-extrabold animate-pulse">{{ pendingBanksCount }}</span>
+                        </button>
+                        <button @click="switchTabWithLoading('admin-requests')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all btn-glow', activeTab === 'admin-requests' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-laptop-code w-4 text-cyan-400"></i> Yêu Cầu Code Bot</div>
+                            <span v-if="pendingRequestsCount > 0" class="bg-blue-900/40 text-blue-300 text-[9px] px-1.5 py-0.5 rounded-full font-bold">{{ pendingRequestsCount }}</span>
+                        </button>
+                        <button @click="switchTabWithLoading('admin-users')" :class="['w-full text-left px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-3 transition-all btn-glow', activeTab === 'admin-users' ? 'bg-brand-600 text-white shadow-md shadow-brand-500/15' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/40']">
+                            <i class="fa-solid fa-users w-4 text-emerald-400"></i> Cộng/Trừ Tiền User
+                        </button>
+                    </template>
+                </aside>
+
+                <!-- Content Area -->
+                <div class="lg:col-span-9 space-y-6">
+                    <!-- Tab: Store (giữ nguyên) -->
+                    <section v-if="activeTab === 'store'" class="space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <div>
+                                <h1 class="text-xl font-extrabold text-white">Mua & Thuê Hosting Bot</h1>
+                                <p class="text-xs text-gray-400 mt-1">Giao diện rộng rãi, hỗ trợ tự động kích hoạt máy chủ siêu tốc.</p>
+                            </div>
+                            <div v-if="currentUser" class="flex items-center gap-3 bg-[#1a1a2e] border border-gray-800 px-4 py-2 rounded-xl">
+                                <span class="text-gray-400 text-[10px] font-bold uppercase">Số dư ví hiện tại:</span>
+                                <span class="text-emerald-400 font-extrabold text-sm">{{ formatMoney(currentUser.balance) }}</span>
+                            </div>
+                        </div>
+                        <div v-if="hostPackages.length === 0" class="text-center py-16 bg-[#12121f]/30 border border-gray-800 rounded-2xl">
+                            <div class="w-12 h-12 bg-gray-800/60 border border-gray-700 rounded-full flex items-center justify-center text-gray-500 mx-auto mb-3"><i class="fa-solid fa-boxes-stacked"></i></div>
+                            <p class="text-sm text-gray-400">Chưa có gói Hosting Bot nào được đăng bán.</p>
+                            <p class="text-xs text-gray-500 mt-1" v-if="isAdmin">Đại ca hãy chuyển sang phần "Cấu Hình Giá Host" để thêm sản phẩm mới!</p>
+                            <p class="text-xs text-gray-500 mt-1" v-else>Vui lòng chờ Admin cấu hình thêm gói host mới.</p>
+                        </div>
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div v-for="pkg in hostPackages" :key="pkg.id" 
+                                 class="bg-[#12121f]/80 border border-gray-800 rounded-2xl p-6 hover:border-brand-500/30 transition-all duration-300 flex flex-col justify-between group card-hover-glow">
+                                <div>
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="w-12 h-12 bg-brand-950/40 border border-brand-500/20 rounded-xl flex items-center justify-center text-brand-400 group-hover:bg-brand-600 group-hover:text-white transition duration-300">
+                                            <i class="fa-solid fa-server text-lg"></i>
+                                        </div>
+                                        <span class="bg-brand-950/60 text-brand-300 border border-brand-500/10 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Ổn định 99%</span>
+                                    </div>
+                                    <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition">{{ pkg.name }}</h3>
+                                    <ul class="space-y-2 mt-4 text-xs text-gray-400 border-b border-gray-800/60 pb-4">
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-microchip text-gray-600 w-4"></i> CPU: <strong>{{ pkg.cpu }} Core</strong></li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-memory text-gray-600 w-4"></i> RAM: <strong>{{ pkg.ram }} MB</strong></li>
+                                        <li class="flex items-center gap-2"><i class="fa-solid fa-hard-drive text-gray-600 w-4"></i> SSD: <strong>{{ pkg.ssd }} GB</strong></li>
+                                    </ul>
+                                </div>
+                                <div class="mt-4 pt-2">
+                                    <div class="flex items-baseline justify-between mb-4">
+                                        <span class="text-xs text-gray-500">Đơn giá / ngày</span>
+                                        <div class="text-right">
+                                            <span class="text-base font-extrabold text-brand-400">{{ formatMoney(pkg.pricePerDay) }}</span>
+                                            <span class="text-[9px] text-gray-500">/ngày</span>
+                                        </div>
+                                    </div>
+                                    <button @click="openPriceDrawer(pkg)" class="w-full bg-[#1a1a2e] hover:bg-brand-600 text-gray-300 hover:text-white border border-gray-800 hover:border-transparent py-2 rounded-xl text-xs font-bold transition btn-glow flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> Xem Giá & Đăng Ký
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tab: Custom Bot (giữ nguyên) -->
+                    <section v-if="activeTab === 'custom-bot'" class="space-y-6">
+                        <div class="bg-gradient-to-r from-brand-950/40 via-[#12121f]/80 to-purple-950/40 p-8 border border-gray-800 rounded-3xl text-center space-y-4 shadow-lg shadow-black/20">
+                            <div class="w-16 h-16 bg-brand-600/20 text-brand-400 rounded-full flex items-center justify-center text-2xl mx-auto border border-brand-500/30">
+                                <i class="fa-solid fa-comment-dots"></i>
+                            </div>
+                            <h2 class="text-2xl font-extrabold text-white">Mua Code Bot Hoặc Thuê Bot Theo Yêu Cầu</h2>
+                            <p class="text-sm text-gray-400 max-w-xl mx-auto leading-relaxed">Để sở hữu code bot chất lượng cao chạy ổn định theo ý tưởng riêng, quý khách vui lòng liên hệ trực tiếp cho <strong class="text-white">NickDz</strong> qua các kênh chính thức để trao đổi và nhận báo giá ưu đãi nhất.</p>
+                            <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                                <a href="https://zalo.me/0363087817" target="_blank" class="bg-sky-600 hover:bg-sky-500 text-white font-extrabold px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition btn-glow shadow-lg shadow-sky-500/10">
+                                    <i class="fa-solid fa-comment"></i> LIÊN HỆ QUA ZALO: 0363087817
+                                </a>
+                                <button @click="copyText('nickdzvc')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition btn-glow shadow-lg shadow-indigo-500/10">
+                                    <i class="fa-brands fa-discord"></i> DISCORD ADMIN: nickdzvc (Click Copy)
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 p-6 rounded-2xl shadow-lg shadow-black/20 space-y-4">
+                            <h3 class="text-sm font-bold text-gray-300 uppercase tracking-widest">Gửi thông tin liên hệ nhanh cho Admin</h3>
+                            <p class="text-xs text-gray-400">Admin sẽ chủ động nhắn tin lại cho bạn qua thông tin bạn điền dưới đây:</p>
+                            <form @submit.prevent="submitBotRequest" class="space-y-4 text-xs">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Tên của bạn hoặc Link Zalo/Telegram</label>
+                                        <input type="text" v-model="requestForm.botName" required placeholder="Ví dụ: Minh Tuấn - zl: 036..."
+                                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2.5 text-gray-200 placeholder-gray-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Ý tưởng Bot sơ lược</label>
+                                        <input type="text" v-model="requestForm.platform" placeholder="Ví dụ: Bot quản lý nhóm Telegram tự động"
+                                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2.5 text-gray-200 placeholder-gray-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-400 mb-1">Mô tả chi tiết mong muốn (Ngân sách, tính năng...)</label>
+                                    <textarea v-model="requestForm.description" rows="3" required placeholder="Nêu các tính năng muốn viết..."
+                                              class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200 placeholder-gray-500"></textarea>
+                                </div>
+                                <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-bold transition btn-glow">Gửi Yêu Cầu Cho Admin NickDz</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Tab: My Bots (giữ nguyên) -->
+                    <section v-if="activeTab === 'my-bots'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Quản Lý Trạng Thái Host Bot Đang Hoạt Động</h2>
+                            <p class="text-xs text-gray-400 mt-1">Theo dõi trạng thái bot, gửi file và đổi file bot.</p>
+                            <div class="mt-3 p-3 bg-amber-950/40 border border-amber-500/20 rounded-xl text-xs text-amber-300">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                                <strong>Lưu ý:</strong> Chúng tôi không chịu trách nhiệm khi token trong file là bot khác. Nếu bạn muốn đổi file và chạy file mới, vui lòng liên hệ admin hoặc có thể đổi trực tiếp trên web.
+                            </div>
+                        </div>
+                        <div v-if="userBots.length === 0" class="text-center py-12 bg-[#12121f]/30 border border-gray-800 rounded-2xl">
+                            <p class="text-xs text-gray-500 italic">Bạn chưa đăng ký sử dụng gói Host Bot nào.</p>
+                            <button @click="activeTab = 'store'" class="mt-4 bg-brand-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-brand-500 transition btn-glow">Xem danh sách gói Host</button>
+                        </div>
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="bot in userBots" :key="bot.id" class="bg-[#12121f]/80 border border-gray-800 rounded-2xl p-6 space-y-4 card-hover-glow">
+                                <div class="flex items-center justify-between border-b border-gray-800/60 pb-3">
+                                    <div>
+                                        <h3 class="font-bold text-white text-sm">{{ bot.packageName }}</h3>
+                                        <p class="text-[9px] text-gray-500 font-mono mt-0.5">ID: {{ bot.id }}</p>
+                                    </div>
+                                    <span :class="['text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5', 
+                                                  bot.status === 'RUNNING' ? 'bg-emerald-950/60 text-emerald-400' : 
+                                                  bot.status === 'STOPPED' ? 'bg-gray-800/60 text-gray-400' : 
+                                                  'bg-amber-950/60 text-amber-400']">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></span>
+                                        {{ bot.status }}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex justify-between"><span class="text-gray-500">Hạn sử dụng từ:</span><span class="text-gray-300 font-semibold font-mono">{{ bot.startDate }}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Hết hạn vào lúc:</span><span class="text-gray-300 font-semibold font-mono text-amber-400">{{ bot.endDate }}</span></div>
+                                    <div class="flex justify-between items-start pt-1 border-t border-gray-800/60">
+                                        <span class="text-gray-500">Tệp chương trình:</span>
+                                        <span class="text-right font-semibold">
+                                            <span v-if="bot.fileName" class="text-cyan-400 break-all text-[11px] block max-w-[200px]">
+                                                {{ bot.fileName }}
+                                                <button @click="downloadFile(bot)" class="ml-1 text-brand-400 hover:text-brand-300" title="Tải file"><i class="fa-solid fa-download"></i></button>
+                                            </span>
+                                            <span v-else class="text-gray-500 italic block">Chưa gửi file bot</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 pt-2">
+                                    <button @click="openRenewDrawer(bot)" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition btn-glow">
+                                        <i class="fa-solid fa-arrows-rotate"></i> Gia hạn
+                                    </button>
+                                    <button @click="triggerFileChange(bot)" class="flex-1 bg-[#1a1a2e] hover:bg-gray-800 text-gray-300 border border-gray-700 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition btn-glow">
+                                        <i class="fa-solid fa-upload"></i> Đổi File
+                                    </button>
+                                </div>
+                                <input type="file" :data-bot-id="bot.id" @change="handleFileChange($event, bot)" style="display:none;">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tab: Upload Config (giữ nguyên) -->
+                    <section v-if="activeTab === 'upload-config'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Gửi File Bot Cho Admin Kích Hoạt</h2>
+                            <p class="text-xs text-gray-400 mt-1">Tải file bot lên (file .js, .py, .zip, ...). Admin sẽ kiểm tra và kích hoạt.</p>
+                            <div class="mt-3 p-3 bg-amber-950/40 border border-amber-500/20 rounded-xl text-xs text-amber-300">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                                <strong>Lưu ý:</strong> Chúng tôi không chịu trách nhiệm khi token trong file là bot khác. Nếu bạn muốn đổi file và chạy file mới, vui lòng liên hệ admin hoặc có thể đổi trực tiếp trên web.
+                            </div>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 p-6 rounded-2xl shadow-lg shadow-black/20 space-y-4">
+                            <div v-if="userBots.length === 0" class="p-4 bg-rose-950/40 border border-rose-500/20 rounded-xl text-xs text-rose-300">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Bạn cần phải thuê ít nhất một dịch vụ Host Bot trước khi gửi file cấu hình.
+                            </div>
+                            <form v-else @submit.prevent="submitBotFile" class="space-y-4 text-xs">
+                                <div>
+                                    <label class="block text-gray-400 mb-1">Chọn dịch vụ Host nhận File</label>
+                                    <select v-model="fileUploadForm.botId" required class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2.5 text-gray-300">
+                                        <option value="">-- Chọn Host Bot của bạn --</option>
+                                        <option v-for="bot in userBots" :key="bot.id" :value="bot.id">{{ bot.packageName }} (ID: {{ bot.id }})</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-400 mb-1">Tải file bot lên (hỗ trợ .js, .py, .zip, ...)</label>
+                                    <input type="file" ref="fileInput" @change="onFileSelected" required
+                                           class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2.5 text-gray-300 file:bg-brand-600 file:border-0 file:text-white file:px-4 file:py-1 file:rounded-lg file:font-bold file:cursor-pointer">
+                                    <span v-if="fileUploadForm.fileName" class="text-emerald-400 text-[11px] block mt-1">Đã chọn: {{ fileUploadForm.fileName }}</span>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-400 mb-1">Ghi chú hướng dẫn chạy (Ví dụ: Chạy file index.js, cài gói npm...)</label>
+                                    <textarea v-model="fileUploadForm.notes" rows="3" placeholder="Ghi chú thêm nếu có..."
+                                              class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200 placeholder-gray-500"></textarea>
+                                </div>
+                                <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2.5 rounded-xl font-bold transition btn-glow"><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Gửi File Ngay</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Tab: Nạp Tiền (chia tab Bank & Thẻ) -->
+                    <section v-if="activeTab === 'deposit'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Nạp Tiền Giao Dịch</h2>
+                            <p class="text-xs text-gray-400 mt-1">Chọn phương thức thanh toán bên dưới.</p>
+                            <!-- Hiển thị số dư -->
+                            <div v-if="currentUser" class="mt-3 flex items-center gap-3 bg-[#1a1a2e] border border-gray-700 px-4 py-2 rounded-xl">
+                                <span class="text-gray-400 text-[10px] font-bold uppercase">Số dư hiện tại:</span>
+                                <span class="text-emerald-400 font-extrabold text-sm">{{ formatMoney(currentUser.balance) }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Tabs nhỏ -->
+                        <div class="flex gap-2 border-b border-gray-800 pb-2">
+                            <button @click="depositTab = 'bank'" :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition', depositTab === 'bank' ? 'bg-brand-600 text-white' : 'bg-[#1a1a2e] text-gray-400 hover:text-white']">
+                                <i class="fa-solid fa-building-columns mr-1"></i> Bank
+                            </button>
+                            <button @click="depositTab = 'card'" :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition', depositTab === 'card' ? 'bg-brand-600 text-white' : 'bg-[#1a1a2e] text-gray-400 hover:text-white']">
+                                <i class="fa-solid fa-credit-card mr-1"></i> Thẻ cào
+                            </button>
+                        </div>
+
+                        <!-- Nội dung Bank -->
+                        <div v-if="depositTab === 'bank'" class="bg-[#12121f]/80 border border-gray-800 rounded-2xl p-6 shadow-lg shadow-black/20">
+                            <div class="space-y-4">
+                                <span class="bg-emerald-950/60 text-emerald-300 border border-emerald-500/20 text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">NẠP BANK THỦ CÔNG & DUYỆT NHANH</span>
+                                <h3 class="text-base font-extrabold text-white flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-emerald-400"></i> Quét QR Chuyển Khoản Ngân Hàng</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Nhập số tiền muốn nạp (VNĐ)</label>
+                                        <input type="number" v-model.number="depositAmount" min="5000" placeholder="Số tiền nạp..."
+                                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200 placeholder-gray-500">
+                                        <span class="text-[10px] text-gray-500 mt-1 block">Hệ thống tự tạo QR theo đúng số tiền này</span>
+                                    </div>
+                                    <div class="bg-[#1a1a2e] border border-gray-700 p-2.5 rounded-xl flex flex-col justify-center">
+                                        <span class="text-gray-500 text-[9px] font-bold uppercase">Nội dung bắt buộc</span>
+                                        <span class="text-amber-400 font-bold tracking-wider font-mono">NAPTIEN {{ currentUser.username }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 p-4 bg-[#1a1a2e] border border-gray-700 rounded-2xl flex flex-col sm:flex-row items-center gap-6 justify-center">
+                                <div class="relative w-44 h-44 bg-white p-2 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                    <img :src="generateQRLink" alt="MB Bank Auto QR" class="w-full h-full object-contain">
+                                    <div class="absolute left-0 w-full h-1 bg-brand-500 shadow-[0_0_10px_#0ea5e9] scanner-line"></div>
+                                </div>
+                                <div class="space-y-3 text-xs flex-1">
+                                    <p class="font-bold text-gray-300">Thông tin chuyển khoản:</p>
+                                    <ul class="space-y-1 text-gray-400 font-mono">
+                                        <li>Ngân hàng: <strong>MB BANK (MB)</strong></li>
+                                        <li>Số tài khoản: <strong class="text-white">0373159984</strong></li>
+                                        <li>Chủ tài khoản: <strong>HUYNH PHUC KHANG</strong></li>
+                                        <li>Số tiền: <strong class="text-emerald-400">{{ formatMoney(depositAmount) }}</strong></li>
+                                    </ul>
+                                    <p class="text-[9px] text-gray-500">Sau khi hoàn tất chuyển khoản, hãy bấm nút dưới đây để thông báo cho Admin.</p>
+                                    <button @click="submitBankDepositNotify" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-2.5 rounded-xl text-xs transition btn-glow shadow-lg shadow-emerald-500/15">
+                                        <i class="fa-solid fa-paper-plane mr-1"></i> Tôi Đã Chuyển Khoản
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung Thẻ cào -->
+                        <div v-if="depositTab === 'card'" class="bg-[#12121f]/80 border border-gray-800 rounded-2xl p-6 shadow-lg shadow-black/20">
+                            <div class="space-y-4">
+                                <span class="bg-rose-950/60 text-rose-300 border border-rose-500/20 text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">CHIẾT KHẤU GẠCH THẺ 20%</span>
+                                <h3 class="text-base font-extrabold text-white flex items-center gap-2"><i class="fa-solid fa-credit-card text-brand-400"></i> Nạp bằng Thẻ Cào</h3>
+                                <form @submit.prevent="submitScratchCard" class="space-y-3 text-xs">
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Nhà mạng</label>
+                                        <select v-model="scratchForm.carrier" class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-1.5 text-gray-300">
+                                            <option value="Viettel">Viettel</option>
+                                            <option value="Vinaphone">Vinaphone</option>
+                                            <option value="Mobifone">Mobifone</option>
+                                            <option value="Zing">Thẻ Zing</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Mệnh giá</label>
+                                        <select v-model="scratchForm.value" class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-1.5 text-gray-300">
+                                            <option :value="10000">10,000đ (Thực nhận 8,000đ)</option>
+                                            <option :value="20000">20,000đ (Thực nhận 16,000đ)</option>
+                                            <option :value="50000">50,000đ (Thực nhận 40,000đ)</option>
+                                            <option :value="100000">100,000đ (Thực nhận 80,000đ)</option>
+                                            <option :value="200000">200,000đ (Thực nhận 160,000đ)</option>
+                                            <option :value="500000">500,000đ (Thực nhận 400,000đ)</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-gray-400 mb-1">Mã nạp</label>
+                                            <input type="text" v-model="scratchForm.code" required placeholder="Mã thẻ..."
+                                                   class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-1.5 text-gray-200 placeholder-gray-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-400 mb-1">Số Seri</label>
+                                            <input type="text" v-model="scratchForm.serial" required placeholder="Seri..."
+                                                   class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-1.5 text-gray-200 placeholder-gray-500">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2 rounded-xl transition btn-glow">Gửi thẻ yêu cầu duyệt</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tab: Lịch sử (có cuộn ngang) -->
+                    <section v-if="activeTab === 'history'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Lịch Sử Hoạt Động & Giao Dịch</h2>
+                            <p class="text-xs text-gray-400 mt-1">Lưu trữ toàn bộ lịch sử thanh toán nạp tiền và thuê bao host.</p>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                    <thead class="bg-[#0a0a12]/80">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-gray-400 font-semibold uppercase whitespace-nowrap">Thời gian</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 font-semibold uppercase whitespace-nowrap">Nội dung</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 font-semibold uppercase whitespace-nowrap">Giá trị</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 font-semibold uppercase whitespace-nowrap">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 font-mono">
+                                        <tr v-if="filteredHistory.length === 0"><td colspan="4" class="px-6 py-8 text-center text-gray-500 italic">Chưa có giao dịch nào.</td></tr>
+                                        <tr v-for="item in filteredHistory" :key="item.id" class="hover:bg-[#1a1a2e]/40 transition">
+                                            <td class="px-6 py-4 text-gray-400 text-[11px] whitespace-nowrap">{{ item.createdAt }}</td>
+                                            <td class="px-6 py-4 text-gray-300 font-semibold">{{ item.type }}</td>
+                                            <td class="px-6 py-4"><span :class="item.amount > 0 ? 'text-emerald-400' : 'text-rose-400'">{{ item.amount > 0 ? '+' : '' }}{{ formatMoney(item.amount) }}</span></td>
+                                            <td class="px-6 py-4">
+                                                <span :class="['px-2 py-0.5 rounded-full text-[9px] font-bold uppercase', 
+                                                               item.status === 'SUCCESS' ? 'bg-emerald-950/60 text-emerald-300' : 
+                                                               item.status === 'PENDING' ? 'bg-amber-950/60 text-amber-300 animate-pulse' : 'bg-rose-950/60 text-rose-300']">
+                                                    {{ item.status === 'SUCCESS' ? 'Xong' : item.status === 'PENDING' ? 'Chờ duyệt' : 'Huỷ' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Host Packages -->
+                    <section v-if="activeTab === 'admin-hosts'" class="space-y-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <div>
+                                <h1 class="text-xl font-extrabold text-white">Quản Lý Gói Hosting Bot</h1>
+                                <p class="text-xs text-gray-400 mt-1">Bạn có thể tự do thêm, sửa hoặc xóa gói host theo nhu cầu.</p>
+                            </div>
+                            <button @click="openAddHostModal" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition btn-glow flex items-center gap-1.5 shadow-lg shadow-brand-500/10">
+                                <i class="fa-solid fa-circle-plus"></i> Thêm Gói Host Mới
+                            </button>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                    <thead class="bg-[#0a0a12]/80">
+                                        <tr>
+                                            <th class="px-6 py-3.5 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Tên Host</th>
+                                            <th class="px-6 py-3.5 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Cấu hình chi tiết</th>
+                                            <th class="px-6 py-3.5 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Giá thuê / ngày</th>
+                                            <th class="px-6 py-3.5 text-right text-gray-400 uppercase font-semibold whitespace-nowrap">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 font-mono">
+                                        <tr v-if="hostPackages.length === 0"><td colspan="4" class="px-6 py-12 text-center text-gray-500 italic">Bảng giá trống.</td></tr>
+                                        <tr v-for="pkg in hostPackages" :key="pkg.id" class="hover:bg-[#1a1a2e]/40 transition">
+                                            <td class="px-6 py-4 font-bold text-gray-200 text-sm">{{ pkg.name }}</td>
+                                            <td class="px-6 py-4 text-gray-400">{{ pkg.cpu }} Cores | {{ pkg.ram }} MB RAM | {{ pkg.ssd }} GB SSD</td>
+                                            <td class="px-6 py-4 text-brand-400 font-extrabold">{{ formatMoney(pkg.pricePerDay) }}</td>
+                                            <td class="px-6 py-4 text-right space-x-1 whitespace-nowrap">
+                                                <button @click="openEditHostModal(pkg)" class="bg-blue-950/60 text-blue-300 border border-blue-500/20 hover:bg-blue-900/40 px-3 py-1 rounded-md text-[10px] font-bold transition">Sửa</button>
+                                                <button @click="deleteHostPackage(pkg.id)" class="bg-rose-950/60 text-rose-300 border border-rose-500/20 hover:bg-rose-900/40 px-3 py-1 rounded-md text-[10px] font-bold transition">Xóa</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Quản lý Bot (hiển thị file và bật tắt) -->
+                    <section v-if="activeTab === 'admin-bots'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Quản Lý Trạng Thái Hoạt Động & File Bot</h2>
+                            <p class="text-xs text-gray-400 mt-1">Kiểm duyệt file bot của thành viên, bật/tắt trạng thái bot.</p>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                    <thead class="bg-[#0a0a12]/80">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Thành viên / Host ID</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Gói sử dụng</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Tệp cấu hình</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Trạng thái</th>
+                                            <th class="px-6 py-3 text-right text-gray-400 uppercase font-semibold whitespace-nowrap">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 font-mono">
+                                        <tr v-if="activeBots.length === 0"><td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Chưa có người dùng nào đăng ký thuê host.</td></tr>
+                                        <tr v-for="bot in activeBots" :key="bot.id" class="hover:bg-[#1a1a2e]/40 transition">
+                                            <td class="px-6 py-4">
+                                                <span class="font-bold text-gray-200 block">{{ bot.username }}</span>
+                                                <span class="text-[9px] text-gray-500">{{ bot.id }}</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-gray-300">
+                                                <strong>{{ bot.packageName }}</strong><br>
+                                                <span class="text-[10px] text-gray-500 font-semibold">Hạn: {{ bot.endDate }}</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div v-if="bot.fileName">
+                                                    <span class="text-cyan-400 font-bold block max-w-[200px] truncate" :title="bot.fileName">{{ bot.fileName }}</span>
+                                                    <button @click="downloadFile(bot)" class="text-brand-400 hover:text-brand-300 text-[10px] underline transition">Tải về</button>
+                                                    <span class="text-[9px] text-gray-500 block mt-0.5" v-if="bot.botNotes">Ghi chú: {{ bot.botNotes }}</span>
+                                                </div>
+                                                <span v-else class="text-gray-500 italic">Chưa tải file lên</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase', 
+                                                               bot.status === 'RUNNING' ? 'bg-emerald-950/60 text-emerald-400' : 
+                                                               bot.status === 'STOPPED' ? 'bg-gray-700/60 text-gray-400' : 
+                                                               'bg-amber-950/60 text-amber-400']">
+                                                    {{ bot.status === 'RUNNING' ? 'ONLINE' : bot.status === 'STOPPED' ? 'OFFLINE' : 'PENDING' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right space-y-1 whitespace-nowrap">
+                                                <div class="flex justify-end gap-1">
+                                                    <button @click="setBotStatus(bot, 'RUNNING')" 
+                                                            class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition btn-glow">
+                                                        Online
+                                                    </button>
+                                                    <button @click="setBotStatus(bot, 'STOPPED')" 
+                                                            class="bg-gray-600 hover:bg-gray-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold transition btn-glow">
+                                                        Offline
+                                                    </button>
+                                                </div>
+                                                <button v-if="bot.fileName" @click="notifyFileError(bot)" 
+                                                        class="bg-rose-950/60 hover:bg-rose-900/40 text-rose-300 border border-rose-500/20 px-3 py-1 rounded-lg text-[10px] font-bold w-full mt-1 transition btn-glow">
+                                                    Thông báo lỗi file
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Cards (có cuộn ngang) -->
+                    <section v-if="activeTab === 'admin-cards'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Kiểm Duyệt Gạch Thẻ Cào (Cắt Chiết Khấu 20%)</h2>
+                            <p class="text-xs text-gray-400 mt-1">Phê duyệt thẻ nạp tiền từ người dùng. Hệ thống tự cắt 20% khi duyệt thành công.</p>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                    <thead class="bg-[#0a0a12]/80">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Tài khoản gửi</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Chi Tiết Thẻ</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Thực Nhận (80%)</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Trạng Thái</th>
+                                            <th class="px-6 py-3 text-right text-gray-400 uppercase font-semibold whitespace-nowrap">Thao Tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 font-mono">
+                                        <tr v-if="pendingCards.length === 0"><td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Không có thẻ cào nào đang chờ duyệt.</td></tr>
+                                        <tr v-for="card in pendingCards" :key="card.id" class="hover:bg-[#1a1a2e]/40 transition">
+                                            <td class="px-6 py-4 font-bold text-gray-200">{{ card.username }}</td>
+                                            <td class="px-6 py-4 text-gray-300"><span class="text-violet-400 font-extrabold">{{ card.carrier }}</span><br>Mã: <span class="text-gray-400">{{ card.code }}</span> | Seri: <span class="text-gray-400">{{ card.serial }}</span></td>
+                                            <td class="px-6 py-4 text-emerald-400 font-bold">{{ formatMoney(card.amount * 0.8) }}</td>
+                                            <td class="px-6 py-4"><span class="bg-amber-950/60 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">Đang duyệt</span></td>
+                                            <td class="px-6 py-4 text-right space-x-1 whitespace-nowrap">
+                                                <button @click="approveCard(card, true)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-md text-[10px] font-bold transition btn-glow">Duyệt</button>
+                                                <button @click="approveCard(card, false)" class="bg-rose-950/60 hover:bg-rose-900/40 text-rose-300 border border-rose-500/20 px-3 py-1 rounded-md text-[10px] font-bold transition">Từ chối</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Banks (có cuộn ngang) -->
+                    <section v-if="activeTab === 'admin-banks'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Kiểm Duyệt Nạp Tiền Ngân Hàng</h2>
+                            <p class="text-xs text-gray-400 mt-1">Duyệt các thông báo báo chuyển khoản MB Bank thủ công từ khách hàng.</p>
+                        </div>
+                        <div class="bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                    <thead class="bg-[#0a0a12]/80">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Tài khoản gửi</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Nội dung báo nạp</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Số tiền</th>
+                                            <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Thời gian báo</th>
+                                            <th class="px-6 py-3 text-right text-gray-400 uppercase font-semibold whitespace-nowrap">Thao Tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 font-mono">
+                                        <tr v-if="pendingBanks.length === 0"><td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Không có yêu cầu nạp ngân hàng nào đang chờ duyệt.</td></tr>
+                                        <tr v-for="bank in pendingBanks" :key="bank.id" class="hover:bg-[#1a1a2e]/40 transition">
+                                            <td class="px-6 py-4 font-bold text-gray-200">{{ bank.username }}</td>
+                                            <td class="px-6 py-4 text-gray-300">Báo nạp: <span class="text-amber-400 font-bold uppercase">NAPTIEN {{ bank.username }}</span></td>
+                                            <td class="px-6 py-4 text-emerald-400 font-bold">{{ formatMoney(bank.amount) }}</td>
+                                            <td class="px-6 py-4 text-gray-400 text-[11px]">{{ bank.createdAt }}</td>
+                                            <td class="px-6 py-4 text-right space-x-1 whitespace-nowrap">
+                                                <button @click="approveBankDeposit(bank, true)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-md text-[10px] font-bold transition btn-glow">Duyệt</button>
+                                                <button @click="approveBankDeposit(bank, false)" class="bg-rose-950/60 hover:bg-rose-900/40 text-rose-300 border border-rose-500/20 px-3 py-1 rounded-md text-[10px] font-bold transition">Từ chối</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Requests (có cuộn ngang) -->
+                    <section v-if="activeTab === 'admin-requests'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Yêu Cầu Từ Khách Hàng (Zalo / Discord)</h2>
+                            <p class="text-xs text-gray-400 mt-1">Thông tin các khách hàng chủ động gửi thông tin nhờ thiết kế code bot riêng.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div v-if="botRequests.length === 0" class="text-center py-12 bg-[#12121f]/30 border border-gray-800 rounded-2xl">
+                                <p class="text-xs text-gray-500 italic">Không có yêu cầu nào.</p>
+                            </div>
+                            <div v-for="req in botRequests" :key="req.id" class="bg-[#12121f]/80 border border-gray-800 rounded-2xl p-6 space-y-4 shadow-lg shadow-black/20 card-hover-glow">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800/60 pb-3">
+                                    <div>
+                                        <h3 class="text-sm font-extrabold text-white">{{ req.botName }}</h3>
+                                        <p class="text-[9px] text-gray-500 font-mono mt-0.5">Yêu cầu bởi: <strong class="text-gray-300">{{ req.username }}</strong> vào {{ req.createdAt }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs whitespace-nowrap">
+                                        <span class="text-gray-400">Nền tảng: <strong class="text-gray-200">{{ req.platform }}</strong></span>
+                                        <span :class="['px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase', 
+                                                       req.status === 'PENDING' ? 'bg-amber-950/60 text-amber-300' : 
+                                                       req.status === 'CONTACTED' ? 'bg-blue-950/60 text-blue-300' : 'bg-gray-800/60 text-gray-400']">
+                                            {{ req.status === 'PENDING' ? 'Mới' : req.status === 'CONTACTED' ? 'Đang nhắn tin' : 'Hoàn tất' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-300 bg-[#1a1a2e] p-4 rounded-xl border border-gray-800">
+                                    <p class="font-bold text-gray-400 mb-1 uppercase text-[9px] tracking-widest">Nội dung yêu cầu:</p>
+                                    <p class="whitespace-pre-line">{{ req.description }}</p>
+                                </div>
+                                <div class="flex justify-end gap-2 text-xs">
+                                    <button v-if="req.status === 'PENDING'" @click="updateRequestStatus(req, 'CONTACTED')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-lg font-bold text-[11px] transition btn-glow">Đã nhận cuộc gọi</button>
+                                    <button v-if="req.status === 'CONTACTED'" @click="updateRequestStatus(req, 'COMPLETED')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg font-bold text-[11px] transition btn-glow">Hoàn tất</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ADMIN: Users -->
+                    <section v-if="activeTab === 'admin-users'" class="space-y-6">
+                        <div class="bg-[#12121f]/60 p-6 border border-gray-800 rounded-2xl shadow-lg shadow-black/20">
+                            <h2 class="text-base font-bold text-white">Quản Lý Ví Tiền Người Dùng</h2>
+                            <p class="text-xs text-gray-400 mt-1">Cộng (+) hoặc trừ (-) tiền số dư của bất kỳ thành viên nào.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                            <div class="md:col-span-5 bg-[#12121f]/80 border border-gray-800 p-6 rounded-2xl shadow-lg shadow-black/20 space-y-4">
+                                <h3 class="text-sm font-bold text-gray-300 uppercase tracking-wider">Hành Động Chỉnh Sửa</h3>
+                                <form @submit.prevent="adjustUserBalance" class="space-y-4 text-xs">
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Chọn thành viên</label>
+                                        <select v-model="adjustForm.username" class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-300">
+                                            <option value="">-- Chọn --</option>
+                                            <option v-for="user in normalUsers" :key="user.username" :value="user.username">{{ user.username }} (Ví: {{ formatMoney(user.balance) }})</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Loại điều chỉnh</label>
+                                        <select v-model="adjustForm.type" class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-300">
+                                            <option value="ADD">Cộng tiền thêm (+)</option>
+                                            <option value="SUB">Trừ bớt tiền (-)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-400 mb-1">Số tiền thay đổi (VNĐ)</label>
+                                        <input type="number" v-model="adjustForm.amount" required min="100" placeholder="Nhập số tiền..."
+                                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200 placeholder-gray-500">
+                                    </div>
+                                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl transition btn-glow">Thực Hiện</button>
+                                </form>
+                            </div>
+                            <div class="md:col-span-7 bg-[#12121f]/60 border border-gray-800 rounded-2xl overflow-hidden shadow-lg shadow-black/20">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-800 text-xs">
+                                        <thead class="bg-[#0a0a12]/80">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Tài khoản</th>
+                                                <th class="px-6 py-3 text-left text-gray-400 uppercase font-semibold whitespace-nowrap">Mật khẩu</th>
+                                                <th class="px-6 py-3 text-right text-gray-400 uppercase font-semibold whitespace-nowrap">Số dư</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-800 font-mono">
+                                            <tr v-if="normalUsers.length === 0"><td colspan="3" class="px-6 py-8 text-center text-gray-500 italic">Chưa có người dùng.</td></tr>
+                                            <tr v-for="user in normalUsers" :key="user.username" class="hover:bg-[#1a1a2e]/40 transition">
+                                                <td class="px-6 py-3 text-gray-200 font-bold">{{ user.username }}</td>
+                                                <td class="px-6 py-3 text-gray-400 text-[11px]">{{ user.password }}</td>
+                                                <td class="px-6 py-3 text-right text-emerald-400 font-extrabold">{{ formatMoney(user.balance) }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <!-- Drawer -->
+        <div class="fixed inset-0 z-50 overflow-hidden pointer-events-none" :class="showDrawer ? 'block' : 'hidden'">
+            <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm pointer-events-auto transition-opacity duration-300" :class="showDrawer ? 'opacity-100' : 'opacity-0'" @click="closeDrawer"></div>
+            <div class="absolute inset-y-0 right-0 max-w-md w-full flex pl-10">
+                <div class="w-screen max-w-md pointer-events-auto transform transition-all duration-500 ease-out bg-[#12121f] border-l border-gray-800 p-6 flex flex-col justify-between shadow-2xl h-full overflow-y-auto drawer-scroll"
+                     :class="showDrawer ? 'translate-x-0' : 'translate-x-full'">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-cart-shopping text-brand-400"></i> Chi Tiết Hóa Đơn</h3>
+                            <button @click="closeDrawer" class="text-gray-400 hover:text-gray-200 w-8 h-8 rounded-lg bg-[#1a1a2e] flex items-center justify-center transition btn-glow"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div v-if="drawerPkg" class="bg-[#1a1a2e] p-4 rounded-xl border border-gray-800 space-y-1.5">
+                            <span class="text-[9px] text-brand-400 font-bold uppercase tracking-widest block">Máy Chủ Đã Chọn</span>
+                            <h4 class="text-sm font-bold text-white">{{ drawerPkg.name }}</h4>
+                            <p class="text-[11px] text-gray-400 font-mono">{{ drawerPkg.cpu }} Core / {{ drawerPkg.ram }} MB RAM / {{ drawerPkg.ssd }} GB SSD</p>
+                        </div>
+                        <div class="space-y-4">
+                            <h5 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Chọn chu kỳ thuê</h5>
+                            <div class="space-y-1.5 text-xs">
+                                <label class="block text-gray-400">Số ngày:</label>
+                                <div class="flex items-center gap-2">
+                                    <button @click="adjustDays(-5)" class="w-10 h-10 bg-[#1a1a2e] border border-gray-700 rounded-lg text-gray-300 font-bold hover:bg-gray-800 transition btn-glow">-5</button>
+                                    <input type="number" v-model.number="selectedDays" min="1" max="365" class="flex-1 bg-[#1a1a2e] border border-gray-700 rounded-lg h-10 text-center font-bold text-white">
+                                    <button @click="adjustDays(5)" class="w-10 h-10 bg-[#1a1a2e] border border-gray-700 rounded-lg text-gray-300 font-bold hover:bg-gray-800 transition btn-glow">+5</button>
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <button @click="selectedDays = 7" :class="['flex-1 py-1 rounded-lg text-[10px] font-bold border transition', selectedDays === 7 ? 'bg-brand-950/60 border-brand-500 text-brand-300' : 'bg-[#1a1a2e] border-gray-700 text-gray-500']">7 ngày</button>
+                                <button @click="selectedDays = 30" :class="['flex-1 py-1 rounded-lg text-[10px] font-bold border transition', selectedDays === 30 ? 'bg-brand-950/60 border-brand-500 text-brand-300' : 'bg-[#1a1a2e] border-gray-700 text-gray-500']">30 ngày</button>
+                                <button @click="selectedDays = 90" :class="['flex-1 py-1 rounded-lg text-[10px] font-bold border transition', selectedDays === 90 ? 'bg-brand-950/60 border-brand-500 text-brand-300' : 'bg-[#1a1a2e] border-gray-700 text-gray-500']">90 ngày</button>
+                            </div>
+                            <div class="bg-[#1a1a2e] p-4 rounded-xl border border-gray-800 text-xs space-y-2">
+                                <div class="flex justify-between"><span class="text-gray-400">Đơn giá ngày:</span><span class="font-bold text-gray-200">{{ formatMoney(drawerPkg ? drawerPkg.pricePerDay : 0) }}</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Số ngày:</span><span class="font-bold text-gray-200">{{ selectedDays }}</span></div>
+                                <div class="border-t border-gray-700 pt-2 flex justify-between items-baseline">
+                                    <span class="font-bold text-white">Thành tiền:</span>
+                                    <span class="text-base font-extrabold text-emerald-400">{{ formatMoney(totalPayPrice) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3 pt-6">
+                        <div v-if="!currentUser" class="p-3 bg-rose-950/40 border border-rose-500/20 rounded-lg text-[11px] text-rose-300 text-center">
+                            Để thuê host vui lòng <button @click="closeDrawerAndPromptLogin" class="underline font-bold text-rose-400 transition">Đăng Nhập</button> trước!
+                        </div>
+                        <div v-else-if="!isBalanceSufficient" class="p-3 bg-rose-950/40 border border-rose-500/20 rounded-lg text-[11px] text-rose-300">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Số dư khả dụng: <strong>{{ formatMoney(currentUser.balance) }}</strong>, không đủ để trả <strong>{{ formatMoney(totalPayPrice) }}</strong>. Hãy nạp thêm!
+                        </div>
+                        <div class="flex gap-2">
+                            <button @click="closeDrawer" class="flex-1 bg-[#1a1a2e] border border-gray-700 hover:bg-gray-800 text-gray-400 hover:text-gray-200 py-2.5 rounded-xl text-xs font-bold transition btn-glow">Huỷ</button>
+                            <template v-if="currentUser">
+                                <button v-if="drawerAction === 'BUY'" @click="purchaseHost" :disabled="!isBalanceSufficient"
+                                        class="flex-1 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 disabled:cursor-not-allowed text-white py-2.5 rounded-xl text-xs font-bold transition btn-glow">Thanh Toán</button>
+                                <button v-else-if="drawerAction === 'RENEW'" @click="renewHost" :disabled="!isBalanceSufficient"
+                                        class="flex-1 bg-brand-600 hover:bg-brand-500 disabled:opacity-40 disabled:cursor-not-allowed text-white py-2.5 rounded-xl text-xs font-bold transition btn-glow">Gia Hạn</button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Modal -->
+        <div v-if="showHostModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" @click="closeHostModal"></div>
+            <div class="relative bg-[#12121f] border border-gray-800 max-w-md w-full rounded-2xl p-6 space-y-4 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <h3 class="text-sm font-bold text-white">{{ hostModalMode === 'ADD' ? 'Tạo mới gói Host' : 'Sửa gói Host' }}</h3>
+                    <button @click="closeHostModal" class="text-gray-400 hover:text-gray-200 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form @submit.prevent="saveHostPackage" class="space-y-3.5 text-xs">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Tên Gói</label>
+                        <input type="text" v-model="hostModalForm.name" required placeholder="Tên gói..."
+                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200 placeholder-gray-500">
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">CPU</label>
+                            <input type="number" v-model="hostModalForm.cpu" required min="1" max="64"
+                                   class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-2 text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">RAM (MB)</label>
+                            <input type="number" v-model="hostModalForm.ram" required min="128" max="32768" step="128"
+                                   class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-2 text-gray-200">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">SSD (GB)</label>
+                            <input type="number" v-model="hostModalForm.ssd" required min="1" max="500"
+                                   class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-3 py-2 text-gray-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Giá / Ngày (VNĐ)</label>
+                        <input type="number" v-model="hostModalForm.pricePerDay" required min="100" step="10"
+                               class="w-full bg-[#1a1a2e] border border-gray-700 rounded-xl px-4 py-2 text-gray-200">
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" @click="closeHostModal" class="flex-1 bg-[#1a1a2e] border border-gray-700 text-gray-400 py-2 rounded-xl font-bold hover:bg-gray-800 transition btn-glow">Hủy</button>
+                        <button type="submit" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-xl font-bold transition btn-glow">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-800 bg-[#0a0a12]/80 py-6 text-center text-gray-500 text-[10px] uppercase tracking-widest mt-auto backdrop-blur-sm">
+            <p>&copy; 2026 NickDz Bot Shop. Tư vấn Zalo: 0363087817 - Discord: nickdzvc</p>
+        </footer>
+    </div>
+
+    <!-- Vue Script -->
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // Toasts
+                const toasts = ref([]);
+                const addToast = (message, type = 'success') => {
+                    const id = Date.now();
+                    toasts.value.push({ id, message, type });
+                    setTimeout(() => removeToast(id), 4000);
+                };
+                const removeToast = (id) => {
+                    toasts.value = toasts.value.filter(t => t.id !== id);
+                };
+
+                // SweetAlert (màu xanh lá)
+                const showSweetAlert = (title, text, icon = 'success') => {
+                    Swal.fire({
+                        title,
+                        text,
+                        icon,
+                        confirmButtonColor: '#10b981', // xanh lá
+                        confirmButtonText: 'OK',
+                        timer: 5000,
+                        timerProgressBar: true,
+                        background: '#12121f',
+                        color: '#e5e7eb',
+                        iconColor: '#10b981',
+                    });
+                };
+
+                // Copy
+                const copyText = (text) => {
+                    const temp = document.createElement('textarea');
+                    temp.value = text;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    try { document.execCommand('copy'); addToast(`Đã sao chép: ${text}`, 'success'); }
+                    catch (err) { addToast('Không thể sao chép!', 'error'); }
+                    document.body.removeChild(temp);
+                };
+
+                // Loading
+                const globalLoading = ref(false);
+                const triggerLoadingScreen = (duration = 600) => {
+                    globalLoading.value = true;
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            globalLoading.value = false;
+                            resolve();
+                        }, duration);
+                    });
+                };
+
+                // Auth
+                const authMode = ref('');
+                const authForm = ref({ username: '', password: '', confirmPassword: '' });
+                const currentUser = ref(null);
+
+                // Data
+                const users = ref([]);
+                const hostPackages = ref([]);
+                const activeBots = ref([]);
+                const transactions = ref([]);
+                const botRequests = ref([]);
+
+                const activeTab = ref('store');
+                const depositTab = ref('bank'); // bank hoặc card
+
+                // Forms
+                const requestForm = ref({ botName: '', platform: '', language: '', budget: '', description: '' });
+                const fileUploadForm = ref({ botId: '', fileLink: '', notes: '', fileName: '', fileData: null });
+                const depositAmount = ref(50000);
+                const scratchForm = ref({ carrier: 'Viettel', value: 50000, code: '', serial: '' });
+                const adjustForm = ref({ username: '', type: 'ADD', amount: '' });
+
+                // Drawer
+                const showDrawer = ref(false);
+                const drawerPkg = ref(null);
+                const drawerAction = ref('BUY');
+                const selectedDays = ref(30);
+                const selectedRenewBot = ref(null);
+
+                // Admin Modal
+                const showHostModal = ref(false);
+                const hostModalMode = ref('ADD');
+                const hostModalForm = ref({ id: null, name: '', cpu: 1, ram: 1024, ssd: 15, pricePerDay: 1000 });
+
+                const fileInput = ref(null);
+
+                // Init
+                onMounted(() => {
+                    const savedUsers = localStorage.getItem('botshop_v2_users');
+                    if (savedUsers) users.value = JSON.parse(savedUsers);
+                    else { users.value = [{ username: 'demouser', password: '123', balance: 100000 }]; saveUsers(); }
+
+                    const savedPkgs = localStorage.getItem('botshop_v2_packages');
+                    if (savedPkgs) hostPackages.value = JSON.parse(savedPkgs);
+                    else { hostPackages.value = [{ id: 'pkg-default', name: 'Node+Python', cpu: 2, ram: 2048, ssd: 20, pricePerDay: 1000 }]; savePackages(); }
+
+                    const savedBots = localStorage.getItem('botshop_v2_bots');
+                    if (savedBots) activeBots.value = JSON.parse(savedBots);
+                    else activeBots.value = [];
+
+                    const savedTx = localStorage.getItem('botshop_v2_tx');
+                    if (savedTx) transactions.value = JSON.parse(savedTx);
+                    else transactions.value = [];
+
+                    const savedReqs = localStorage.getItem('botshop_v2_reqs');
+                    if (savedReqs) botRequests.value = JSON.parse(savedReqs);
+                    else botRequests.value = [];
+
+                    const session = localStorage.getItem('botshop_v2_session');
+                    if (session) {
+                        const parsed = JSON.parse(session);
+                        if (parsed.username === 'nickdz') {
+                            currentUser.value = { username: 'nickdz', role: 'admin', balance: 99999999 };
+                            activeTab.value = 'admin-hosts';
+                        } else {
+                            const found = users.value.find(u => u.username === parsed.username);
+                            if (found) { currentUser.value = found; activeTab.value = 'store'; }
+                        }
+                    }
+                });
+
+                const saveUsers = () => localStorage.setItem('botshop_v2_users', JSON.stringify(users.value));
+                const savePackages = () => localStorage.setItem('botshop_v2_packages', JSON.stringify(hostPackages.value));
+                const saveBots = () => localStorage.setItem('botshop_v2_bots', JSON.stringify(activeBots.value));
+                const saveTx = () => localStorage.setItem('botshop_v2_tx', JSON.stringify(transactions.value));
+                const saveRequests = () => localStorage.setItem('botshop_v2_reqs', JSON.stringify(botRequests.value));
+
+                const formatMoney = (val) => {
+                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                };
+
+                const switchTabWithLoading = async (tabName) => {
+                    await triggerLoadingScreen(350);
+                    activeTab.value = tabName;
+                };
+
+                // Auth
+                const handleAuth = async () => {
+                    const u = authForm.value.username.trim();
+                    const p = authForm.value.password;
+                    await triggerLoadingScreen(500);
+
+                    if (u === 'nickdz' && p === '123456') {
+                        currentUser.value = { username: 'nickdz', role: 'admin', balance: 999999999 };
+                        localStorage.setItem('botshop_v2_session', JSON.stringify({ username: 'nickdz' }));
+                        authForm.value = { username: '', password: '', confirmPassword: '' };
+                        showSweetAlert('ĐĂNG NHẬP ADMIN', 'Chào mừng Admin NickDz!', 'success');
+                        activeTab.value = 'admin-hosts';
+                        return;
+                    }
+
+                    if (authMode.value === 'login') {
+                        const found = users.value.find(user => user.username.toLowerCase() === u.toLowerCase() && user.password === p);
+                        if (found) {
+                            currentUser.value = found;
+                            localStorage.setItem('botshop_v2_session', JSON.stringify({ username: found.username }));
+                            showSweetAlert('ĐĂNG NHẬP THÀNH CÔNG', `Chào mừng ${found.username}! Số dư: ${formatMoney(found.balance)}`, 'success');
+                            switchTabWithLoading('store');
+                        } else {
+                            showSweetAlert('LỖI', 'Sai tài khoản hoặc mật khẩu!', 'error');
+                        }
+                    } else {
+                        if (u.length < 3) { showSweetAlert('LỖI', 'Tài khoản phải chứa ít nhất 3 ký tự!', 'error'); return; }
+                        const exists = users.value.some(user => user.username.toLowerCase() === u.toLowerCase());
+                        if (exists) { showSweetAlert('LỖI', 'Tài khoản đã tồn tại!', 'error'); return; }
+                        const newUser = { username: u, password: p, balance: 0 };
+                        users.value.push(newUser);
+                        saveUsers();
+                        currentUser.value = newUser;
+                        localStorage.setItem('botshop_v2_session', JSON.stringify({ username: newUser.username }));
+                        showSweetAlert('ĐĂNG KÝ THÀNH CÔNG', 'Tài khoản đã được tạo, hãy nạp tiền để sử dụng dịch vụ!', 'success');
+                        switchTabWithLoading('store');
+                    }
+                    authForm.value = { username: '', password: '', confirmPassword: '' };
+                };
+
+                const logout = () => {
+                    currentUser.value = null;
+                    localStorage.removeItem('botshop_v2_session');
+                    addToast('Đã đăng xuất!', 'info');
+                    switchTabWithLoading('store');
+                };
+
+                const isAdmin = computed(() => {
+                    return currentUser.value && currentUser.value.username === 'nickdz';
+                });
+
+                // Drawer
+                const openPriceDrawer = (pkg) => {
+                    drawerPkg.value = pkg;
+                    drawerAction.value = 'BUY';
+                    selectedDays.value = 30;
+                    showDrawer.value = true;
+                };
+                const openRenewDrawer = (bot) => {
+                    const pkg = hostPackages.value.find(p => p.name === bot.packageName);
+                    drawerPkg.value = pkg || { name: bot.packageName, pricePerDay: 1000, cpu: 1, ram: 1024, ssd: 10 };
+                    selectedRenewBot.value = bot;
+                    drawerAction.value = 'RENEW';
+                    selectedDays.value = 30;
+                    showDrawer.value = true;
+                };
+                const closeDrawer = () => { showDrawer.value = false; };
+                const closeDrawerAndPromptLogin = () => {
+                    showDrawer.value = false;
+                    authMode.value = 'login';
+                };
+                const adjustDays = (val) => {
+                    let next = selectedDays.value + val;
+                    if (next < 1) next = 1;
+                    if (next > 365) next = 365;
+                    selectedDays.value = next;
+                };
+                const totalPayPrice = computed(() => {
+                    if (!drawerPkg.value) return 0;
+                    return drawerPkg.value.pricePerDay * selectedDays.value;
+                });
+                const isBalanceSufficient = computed(() => {
+                    if (!currentUser.value) return false;
+                    if (isAdmin.value) return true;
+                    return currentUser.value.balance >= totalPayPrice.value;
+                });
+
+                // Purchase / Renew
+                const purchaseHost = async () => {
+                    if (!isBalanceSufficient.value) { showSweetAlert('LỖI', 'Số dư không đủ!', 'error'); return; }
+                    await triggerLoadingScreen(500);
+                    if (!isAdmin.value) {
+                        currentUser.value.balance -= totalPayPrice.value;
+                        const idx = users.value.findIndex(u => u.username === currentUser.value.username);
+                        if (idx !== -1) { users.value[idx].balance = currentUser.value.balance; saveUsers(); }
+                    }
+                    const start = new Date();
+                    const end = new Date();
+                    end.setDate(start.getDate() + selectedDays.value);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const format = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                    const newBot = {
+                        id: 'NICKDZ-' + Math.random().toString(36).substr(2, 7).toUpperCase(),
+                        username: currentUser.value.username,
+                        packageName: drawerPkg.value.name,
+                        startDate: format(start),
+                        endDate: format(end),
+                        rawEndDate: end.getTime(),
+                        status: 'PENDING',
+                        botFileLink: '',
+                        fileName: '',
+                        fileData: null,
+                        botNotes: ''
+                    };
+                    activeBots.value.push(newBot);
+                    saveBots();
+                    const newTx = {
+                        id: 'tx-' + Date.now(),
+                        username: currentUser.value.username,
+                        type: `Thuê Host [${drawerPkg.value.name}]`,
+                        amount: -totalPayPrice.value,
+                        status: 'SUCCESS',
+                        createdAt: format(start)
+                    };
+                    transactions.value.unshift(newTx);
+                    saveTx();
+                    showSweetAlert('THUÊ HOST THÀNH CÔNG', `Đã thanh toán ${formatMoney(totalPayPrice.value)}. Bot đang chờ Admin kích hoạt.`, 'success');
+                    closeDrawer();
+                    switchTabWithLoading('my-bots');
+                };
+
+                const renewHost = async () => {
+                    if (!selectedRenewBot.value) return;
+                    if (!isBalanceSufficient.value) { showSweetAlert('LỖI', 'Số dư không đủ để gia hạn!', 'error'); return; }
+                    await triggerLoadingScreen(500);
+                    if (!isAdmin.value) {
+                        currentUser.value.balance -= totalPayPrice.value;
+                        const idx = users.value.findIndex(u => u.username === currentUser.value.username);
+                        if (idx !== -1) { users.value[idx].balance = currentUser.value.balance; saveUsers(); }
+                    }
+                    const botIdx = activeBots.value.findIndex(b => b.id === selectedRenewBot.value.id);
+                    if (botIdx !== -1) {
+                        const currentRaw = activeBots.value[botIdx].rawEndDate || Date.now();
+                        const nextDate = new Date(currentRaw);
+                        nextDate.setDate(nextDate.getDate() + selectedDays.value);
+                        const pad = (n) => n.toString().padStart(2, '0');
+                        activeBots.value[botIdx].endDate = `${pad(nextDate.getDate())}/${pad(nextDate.getMonth() + 1)}/${nextDate.getFullYear()} ${pad(nextDate.getHours())}:${pad(nextDate.getMinutes())}`;
+                        activeBots.value[botIdx].rawEndDate = nextDate.getTime();
+                        saveBots();
+                    }
+                    const newTx = {
+                        id: 'tx-renew-' + Date.now(),
+                        username: currentUser.value.username,
+                        type: `Gia hạn Host [${selectedRenewBot.value.packageName}]`,
+                        amount: -totalPayPrice.value,
+                        status: 'SUCCESS',
+                        createdAt: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN')
+                    };
+                    transactions.value.unshift(newTx);
+                    saveTx();
+                    showSweetAlert('GIA HẠN THÀNH CÔNG', `Đã gia hạn thêm ${selectedDays.value} ngày.`, 'success');
+                    selectedRenewBot.value = null;
+                    closeDrawer();
+                    switchTabWithLoading('my-bots');
+                };
+
+                // Bot status (admin)
+                const setBotStatus = (bot, status) => {
+                    if (!isAdmin.value) {
+                        showSweetAlert('LỖI', 'Chỉ Admin mới có quyền thay đổi trạng thái!', 'error');
+                        return;
+                    }
+                    bot.status = status;
+                    saveBots();
+                    addToast(`Đã chuyển bot sang trạng thái: ${status === 'RUNNING' ? 'ONLINE' : 'OFFLINE'}`, 'success');
+                };
+
+                const notifyFileError = (bot) => {
+                    addToast(`Đã gửi thông báo lỗi file cho ${bot.username}`, 'success');
+                };
+
+                // File upload
+                const onFileSelected = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            fileUploadForm.value.fileData = e.target.result;
+                            fileUploadForm.value.fileName = file.name;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+
+                const submitBotFile = async () => {
+                    if (!fileUploadForm.value.botId) { showSweetAlert('LỖI', 'Vui lòng chọn dịch vụ Host!', 'error'); return; }
+                    if (!fileUploadForm.value.fileData) { showSweetAlert('LỖI', 'Vui lòng chọn file bot!', 'error'); return; }
+                    await triggerLoadingScreen(300);
+                    const botIdx = activeBots.value.findIndex(b => b.id === fileUploadForm.value.botId);
+                    if (botIdx !== -1) {
+                        activeBots.value[botIdx].fileData = fileUploadForm.value.fileData;
+                        activeBots.value[botIdx].fileName = fileUploadForm.value.fileName;
+                        activeBots.value[botIdx].botNotes = fileUploadForm.value.notes;
+                        saveBots();
+                        showSweetAlert('THÀNH CÔNG', 'File bot đã được gửi, Admin sẽ kiểm tra và kích hoạt.', 'success');
+                    } else {
+                        showSweetAlert('LỖI', 'Không tìm thấy bot!', 'error');
+                    }
+                    fileUploadForm.value = { botId: '', fileLink: '', notes: '', fileName: '', fileData: null };
+                    if (fileInput.value) fileInput.value.value = '';
+                    switchTabWithLoading('my-bots');
+                };
+
+                // Change file (my-bots)
+                const triggerFileChange = (bot) => {
+                    const hiddenInput = document.querySelector(`input[data-bot-id="${bot.id}"]`);
+                    if (hiddenInput) hiddenInput.click();
+                };
+                const handleFileChange = (event, bot) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const idx = activeBots.value.findIndex(b => b.id === bot.id);
+                            if (idx !== -1) {
+                                activeBots.value[idx].fileData = e.target.result;
+                                activeBots.value[idx].fileName = file.name;
+                                saveBots();
+                                showSweetAlert('THÀNH CÔNG', 'Đã cập nhật file mới cho bot.', 'success');
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+
+                const downloadFile = (bot) => {
+                    if (bot.fileData) {
+                        const link = document.createElement('a');
+                        link.href = bot.fileData;
+                        link.download = bot.fileName || 'botfile';
+                        link.click();
+                    } else {
+                        showSweetAlert('LỖI', 'Không có file để tải!', 'error');
+                    }
+                };
+
+                // Deposit
+                const generateQRLink = computed(() => {
+                    const amount = depositAmount.value || 0;
+                    const content = currentUser.value ? `NAPTIEN ${currentUser.value.username}` : 'NAPTIEN';
+                    return `https://img.vietqr.io/image/MB-0373159984-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=HUYNH%20PHUC%20KHANG`;
+                });
+
+                const submitBankDepositNotify = async () => {
+                    if (!depositAmount.value || depositAmount.value < 5000) {
+                        showSweetAlert('LỖI', 'Số tiền nạp tối thiểu 5,000 VNĐ!', 'error');
+                        return;
+                    }
+                    await triggerLoadingScreen(500);
+                    const credit = Number(depositAmount.value);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const now = new Date();
+                    const formattedNow = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                    const newBankTx = {
+                        id: 'tx-bank-notify-' + Date.now(),
+                        username: currentUser.value.username,
+                        type: 'Nạp tiền ngân hàng (MB Bank)',
+                        amount: credit,
+                        status: 'PENDING',
+                        createdAt: formattedNow
+                    };
+                    transactions.value.unshift(newBankTx);
+                    saveTx();
+                    showSweetAlert('GỬI THÔNG BÁO THÀNH CÔNG', `Yêu cầu nạp ${formatMoney(credit)} đã gửi đến Admin.`, 'success');
+                    switchTabWithLoading('history');
+                };
+
+                const submitScratchCard = async () => {
+                    if (!scratchForm.value.code || !scratchForm.value.serial) {
+                        showSweetAlert('LỖI', 'Vui lòng điền đầy đủ mã thẻ và seri!', 'error');
+                        return;
+                    }
+                    await triggerLoadingScreen(300);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const now = new Date();
+                    const formattedNow = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                    const newCard = {
+                        id: 'tx-card-' + Date.now(),
+                        username: currentUser.value.username,
+                        type: `Nạp thẻ [${scratchForm.value.carrier}]`,
+                        amount: scratchForm.value.value,
+                        carrier: scratchForm.value.carrier,
+                        code: scratchForm.value.code,
+                        serial: scratchForm.value.serial,
+                        status: 'PENDING',
+                        createdAt: formattedNow
+                    };
+                    transactions.value.unshift(newCard);
+                    saveTx();
+                    scratchForm.value = { carrier: 'Viettel', value: 50000, code: '', serial: '' };
+                    showSweetAlert('THÀNH CÔNG', 'Đã gửi thẻ cào chờ Admin duyệt.', 'success');
+                    switchTabWithLoading('history');
+                };
+
+                // User request
+                const submitBotRequest = async () => {
+                    await triggerLoadingScreen(300);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const now = new Date();
+                    const formattedNow = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                    const newReq = {
+                        id: 'req-' + Date.now(),
+                        username: currentUser.value ? currentUser.value.username : 'Ẩn danh',
+                        botName: requestForm.value.botName || 'Chưa đặt tên',
+                        platform: requestForm.value.platform || 'Bất kỳ',
+                        description: requestForm.value.description,
+                        status: 'PENDING',
+                        createdAt: formattedNow
+                    };
+                    botRequests.value.unshift(newReq);
+                    saveRequests();
+                    requestForm.value = { botName: '', platform: '', language: '', budget: '', description: '' };
+                    showSweetAlert('THÀNH CÔNG', 'Yêu cầu đã gửi, Admin sẽ liên hệ sớm.', 'success');
+                };
+
+                // Admin functions
+                const approveCard = async (card, success) => {
+                    await triggerLoadingScreen(300);
+                    const txIdx = transactions.value.findIndex(t => t.id === card.id);
+                    if (txIdx !== -1) {
+                        if (success) {
+                            transactions.value[txIdx].status = 'SUCCESS';
+                            const net = card.amount * 0.8;
+                            const userIdx = users.value.findIndex(u => u.username === card.username);
+                            if (userIdx !== -1) {
+                                users.value[userIdx].balance += net;
+                                saveUsers();
+                                if (currentUser.value && currentUser.value.username === card.username) {
+                                    currentUser.value.balance += net;
+                                }
+                            }
+                            showSweetAlert('DUYỆT THÀNH CÔNG', `Thành viên nhận ${formatMoney(net)} (đã trừ 20%).`, 'success');
+                        } else {
+                            transactions.value[txIdx].status = 'CANCELLED';
+                            showSweetAlert('ĐÃ TỪ CHỐI', `Thẻ của ${card.username} đã bị từ chối.`, 'info');
+                        }
+                        saveTx();
+                    }
+                };
+
+                const approveBankDeposit = async (bank, success) => {
+                    await triggerLoadingScreen(300);
+                    const txIdx = transactions.value.findIndex(t => t.id === bank.id);
+                    if (txIdx !== -1) {
+                        if (success) {
+                            transactions.value[txIdx].status = 'SUCCESS';
+                            const userIdx = users.value.findIndex(u => u.username === bank.username);
+                            if (userIdx !== -1) {
+                                users.value[userIdx].balance += bank.amount;
+                                saveUsers();
+                                if (currentUser.value && currentUser.value.username === bank.username) {
+                                    currentUser.value.balance += bank.amount;
+                                }
+                            }
+                            showSweetAlert('DUYỆT THÀNH CÔNG', `Đã cộng ${formatMoney(bank.amount)} cho ${bank.username}.`, 'success');
+                        } else {
+                            transactions.value[txIdx].status = 'CANCELLED';
+                            showSweetAlert('ĐÃ TỪ CHỐI', `Giao dịch của ${bank.username} bị từ chối.`, 'info');
+                        }
+                        saveTx();
+                    }
+                };
+
+                const updateRequestStatus = (req, next) => {
+                    const idx = botRequests.value.findIndex(r => r.id === req.id);
+                    if (idx !== -1) {
+                        botRequests.value[idx].status = next;
+                        saveRequests();
+                        addToast('Cập nhật trạng thái thành công!', 'success');
+                    }
+                };
+
+                const adjustUserBalance = async () => {
+                    if (!adjustForm.value.username) { showSweetAlert('LỖI', 'Hãy chọn một thành viên!', 'error'); return; }
+                    if (!adjustForm.value.amount || adjustForm.value.amount <= 0) { showSweetAlert('LỖI', 'Nhập số tiền hợp lệ!', 'error'); return; }
+                    await triggerLoadingScreen(300);
+                    const userIdx = users.value.findIndex(u => u.username === adjustForm.value.username);
+                    if (userIdx !== -1) {
+                        const change = Number(adjustForm.value.amount);
+                        if (adjustForm.value.type === 'ADD') {
+                            users.value[userIdx].balance += change;
+                            showSweetAlert('THÀNH CÔNG', `Đã cộng ${formatMoney(change)} cho ${adjustForm.value.username}`, 'success');
+                        } else {
+                            users.value[userIdx].balance -= change;
+                            showSweetAlert('THÀNH CÔNG', `Đã trừ ${formatMoney(change)} từ ví ${adjustForm.value.username}`, 'success');
+                        }
+                        saveUsers();
+                        const pad = (n) => n.toString().padStart(2, '0');
+                        const now = new Date();
+                        const formattedNow = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                        const newTx = {
+                            id: 'tx-adj-' + Date.now(),
+                            username: adjustForm.value.username,
+                            type: adjustForm.value.type === 'ADD' ? 'Admin điều chỉnh tăng ví' : 'Admin điều chỉnh giảm ví',
+                            amount: adjustForm.value.type === 'ADD' ? change : -change,
+                            status: 'SUCCESS',
+                            createdAt: formattedNow
+                        };
+                        transactions.value.unshift(newTx);
+                        saveTx();
+                        adjustForm.value = { username: '', type: 'ADD', amount: '' };
+                    }
+                };
+
+                // Admin package
+                const openAddHostModal = () => {
+                    hostModalMode.value = 'ADD';
+                    hostModalForm.value = { id: null, name: '', cpu: 1, ram: 1024, ssd: 15, pricePerDay: 1000 };
+                    showHostModal.value = true;
+                };
+                const openEditHostModal = (pkg) => {
+                    hostModalMode.value = 'EDIT';
+                    hostModalForm.value = { ...pkg };
+                    showHostModal.value = true;
+                };
+                const closeHostModal = () => { showHostModal.value = false; };
+                const saveHostPackage = async () => {
+                    await triggerLoadingScreen(250);
+                    const f = hostModalForm.value;
+                    if (hostModalMode.value === 'ADD') {
+                        const newId = 'pkg-' + Date.now();
+                        const newPkg = { id: newId, name: f.name, cpu: Number(f.cpu), ram: Number(f.ram), ssd: Number(f.ssd), pricePerDay: Number(f.pricePerDay) };
+                        hostPackages.value.push(newPkg);
+                        showSweetAlert('THÀNH CÔNG', `Đã thêm gói host: ${f.name}`, 'success');
+                    } else {
+                        const idx = hostPackages.value.findIndex(p => p.id === f.id);
+                        if (idx !== -1) {
+                            hostPackages.value[idx] = { id: f.id, name: f.name, cpu: Number(f.cpu), ram: Number(f.ram), ssd: Number(f.ssd), pricePerDay: Number(f.pricePerDay) };
+                            showSweetAlert('THÀNH CÔNG', `Đã chỉnh sửa gói host: ${f.name}`, 'success');
+                        }
+                    }
+                    savePackages();
+                    closeHostModal();
+                };
+                const deleteHostPackage = async (id) => {
+                    await triggerLoadingScreen(200);
+                    hostPackages.value = hostPackages.value.filter(p => p.id !== id);
+                    savePackages();
+                    addToast('Đã xóa gói host!', 'info');
+                };
+
+                // Computeds
+                const userBots = computed(() => {
+                    if (!currentUser.value) return [];
+                    return activeBots.value.filter(b => b.username === currentUser.value.username);
+                });
+                const userBotsCount = computed(() => userBots.value.length);
+                const filteredHistory = computed(() => {
+                    if (!currentUser.value) return [];
+                    if (isAdmin.value) return transactions.value;
+                    return transactions.value.filter(t => t.username === currentUser.value.username);
+                });
+                const pendingCards = computed(() => transactions.value.filter(t => t.status === 'PENDING' && t.type.includes('Nạp thẻ')));
+                const pendingCardsCount = computed(() => pendingCards.value.length);
+                const pendingBanks = computed(() => transactions.value.filter(t => t.status === 'PENDING' && t.type.includes('Nạp tiền ngân hàng')));
+                const pendingBanksCount = computed(() => pendingBanks.value.length);
+                const pendingRequestsCount = computed(() => botRequests.value.filter(r => r.status === 'PENDING').length);
+                const adminPendingFilesCount = computed(() => activeBots.value.filter(b => b.fileName && b.fileName !== '').length);
+                const normalUsers = computed(() => users.value.filter(u => u.username !== 'nickdz'));
+
+                return {
+                    toasts, removeToast, addToast,
+                    copyText,
+                    globalLoading,
+                    authMode, authForm, currentUser, handleAuth, logout, isAdmin,
+                    activeTab, switchTabWithLoading, depositTab,
+                    hostPackages, userBots, userBotsCount,
+                    fileUploadForm, fileInput, onFileSelected, submitBotFile,
+                    filteredHistory,
+                    requestForm, submitBotRequest,
+                    depositAmount, generateQRLink, submitBankDepositNotify,
+                    scratchForm, submitScratchCard,
+                    pendingCards, pendingCardsCount, pendingBanks, pendingBanksCount,
+                    approveCard, approveBankDeposit,
+                    botRequests, pendingRequestsCount, adminPendingFilesCount,
+                    updateRequestStatus,
+                    normalUsers, adjustForm, adjustUserBalance,
+                    formatMoney,
+                    showDrawer, drawerPkg, drawerAction, selectedDays,
+                    openPriceDrawer, openRenewDrawer, closeDrawer, closeDrawerAndPromptLogin,
+                    adjustDays, totalPayPrice, isBalanceSufficient,
+                    purchaseHost, renewHost,
+                    setBotStatus, notifyFileError,
+                    downloadFile, triggerFileChange, handleFileChange,
+                    showHostModal, hostModalMode, hostModalForm,
+                    openAddHostModal, openEditHostModal, closeHostModal, saveHostPackage, deleteHostPackage
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
